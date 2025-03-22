@@ -1,5 +1,5 @@
-from user import User
-from staff import Staff
+from user import User  
+from staff import Staff 
 
 class ParkingLot:
     def __init__(self, slotId: int, isForStaff: bool = False):
@@ -8,11 +8,17 @@ class ParkingLot:
         self.__isForStaff = isForStaff
         self.__reservedBy = None
 
-    def reserve(self, user: User): # user reserving slot in parking lot
+    def get_slot_id(self):  # Add this getter method
+        return self.__slotId
+
+    def is_occupied(self):
+        return self.__isOccupied
+
+    def reserve(self, user: User):
         if self.__isOccupied:
             print(f"Slot {self.__slotId} is already occupied.")
             return False
-        if self.__isForStaff and not isinstance(user, Staff):  # only Staff can reserve staff-only slots
+        if self.__isForStaff and not isinstance(user, Staff):
             print(f"Slot {self.__slotId} is for staff only.")
             return False
         
@@ -30,5 +36,3 @@ class ParkingLot:
         self.__isOccupied = False
         self.__reservedBy = None
         return True
-    
-

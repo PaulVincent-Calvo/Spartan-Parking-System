@@ -21,3 +21,19 @@ def main():
     print("\nAvailable parking slots:")
     for slot in parking_slots:
         print(f"Slot {slot.get_slot_id()}: {'Occupied' if slot.is_occupied() else 'Available'}")
+
+    print("\nAttempting to reserve parking slots:")
+    parking_slots[0].reserve(user1)
+    parking_slots[1].reserve(staff1) 
+    parking_slots[2].reserve(student1) 
+
+    print("\nStaff Parking Access:")
+    staff1.accessStaffParking()
+    
+    print("\nAdmin Actions:")
+    admin1.view_dashboard()
+    admin1.manage_parking_slot("added", "5")
+    admin1.reset_password(301)
+
+if __name__ == "__main__":
+    main()

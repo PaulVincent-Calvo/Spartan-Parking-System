@@ -8,7 +8,7 @@ class ParkingLot:
         self.__isForStaff = isForStaff
         self.__reservedBy = None
 
-    def get_slot_id(self):  # Add this getter method
+    def get_slot_id(self): 
         return self.__slotId
 
     def is_occupied(self):

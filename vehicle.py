@@ -2,11 +2,12 @@ from user import User
 
 class Vehicle:
     def __init__(self, owner: User, licensePlate: str, vehicleType: str):
-        self.__owner = owner # composition - vehicle has an owner (User)
+        self.__owner = owner  # composition - vehicle has an owner (User)
         self.__licensePlate = licensePlate
         self.__vehicleType = vehicleType
         self.__isRegistered = False
         self.__isParked = False
+        self.__spaceTaken = 1 if vehicleType == "Car" else 0.5 
 
     def get_owner(self):
         return self.__owner
@@ -16,6 +17,9 @@ class Vehicle:
 
     def get_vehicle_type(self):
         return self.__vehicleType
+
+    def get_space_taken(self):
+        return self.__spaceTaken
 
     def is_registered(self):
         return self.__isRegistered

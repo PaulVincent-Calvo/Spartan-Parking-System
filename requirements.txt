@@ -1,0 +1,3 @@
+os-sys  # for clearing the screen
+re  # for input validation
+pytest  # for testing

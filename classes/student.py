@@ -1,4 +1,4 @@
-from user import User
+from .user import User
 
 class Student(User):  # student inheriting from user
     def __init__(self, name: str, user_id: int, email: str, password: str, sr_code: str, course: str):

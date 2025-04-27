@@ -1,4 +1,4 @@
-from user import User
+from .user import User
 
 class Admin(User):   # admin inheriting from user
     def __init__(self, name: str, user_id: int, email: str, password: str):

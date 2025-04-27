@@ -1,4 +1,4 @@
-from user import User
+from .user import User
 
 class Vehicle:
     def __init__(self, owner: User, licensePlate: str, vehicleType: str):
@@ -29,9 +29,11 @@ class Vehicle:
 
     def register_vehicle(self):
         if not self.__isRegistered:
-            self.__isRegistered = True
-            self.__owner.register_vehicle(self.__licensePlate)
-            print(f"Vehicle {self.__licensePlate} registered successfully.")
+            if self.__owner.register_vehicle(self):  
+                self.__isRegistered = True
+                print(f"Vehicle {self.__licensePlate} registered successfully.")
+            else:
+                print(f"Vehicle {self.__licensePlate} registration failed.")
         else:
             print(f"Vehicle {self.__licensePlate} is already registered.")
 

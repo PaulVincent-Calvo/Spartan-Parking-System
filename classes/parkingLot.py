@@ -1,6 +1,6 @@
-from user import User
-from staff import Staff
-from vehicle import Vehicle
+from .user import User
+from .staff import Staff
+from .vehicle import Vehicle
 
 class ParkingLot:
     def __init__(self, slotId: int, isForStaff: bool = False):
@@ -20,6 +20,10 @@ class ParkingLot:
         return self.__isForStaff
 
     def reserve(self, user: User, vehicle: Vehicle):
+        if vehicle.is_parked():
+            print(f"Vehicle {vehicle.get_license_plate()} is already parked and cannot be parked again.")
+            return False
+
         if self.is_occupied():
             print(f"Slot {self.__slotId} is fully occupied.")
             return False

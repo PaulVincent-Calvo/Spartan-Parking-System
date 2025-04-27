@@ -1,11 +1,11 @@
 import os
 import re
-from user import User
-from admin import Admin
-from staff import Staff
-from student import Student
-from vehicle import Vehicle
-from parkingLot import ParkingLot
+from classes.user import User
+from classes.admin import Admin
+from classes.staff import Staff
+from classes.student import Student
+from classes.vehicle import Vehicle
+from classes.parkingLot import ParkingLot
 
 next_user_id = 2  
 
@@ -44,14 +44,16 @@ def register_vehicle(user):
     print("\n==============================")
     print("     Vehicle Registration")
     print("==============================")
+    print(user.name + ", please register your vehicle.")
+    
     while True:
-        license_plate = input("Enter vehicle license plate (6-8 alphanumeric characters): ").strip()
+        license_plate = input("Vehicle License Plate (6-8 alphanumeric characters, no spaces): ").strip()
         if license_plate and is_valid_license_plate(license_plate):
             break
         print("Invalid license plate format. Please enter 6-8 alphanumeric characters (e.g., ABC1234).")
     
     print("Select your vehicle type:")
-    print("1. Car (any 4 Wheeler vehicle)")
+    print("1. Car")
     print("2. Motorcycle")
     while True:
         vehicle_type_choice = input("Enter choice (1 or 2): ").strip()
@@ -78,24 +80,25 @@ def park_vehicle(user):
     for slot in parking_slots:
         if not slot.is_occupied():
             if slot.is_for_staff() and not isinstance(user, Staff):
-                continue  # Skip staff-only slots for non-staff users
+                continue 
             print(f"Slot {slot.get_slot_id()} {'(Staff Only)' if slot.is_for_staff() else ''} - Space Available: {slot._ParkingLot__spaceAvailable}")
 
-    if not hasattr(user, 'vehicles') or not user.vehicles:
-        print("You have no registered vehicles. Please register a vehicle first.")
+    user_vehicles = [vehicle for vehicle in user.get_vehicles() if not vehicle.is_parked()]
+    if not user_vehicles:
+        print("You have no unparked vehicles available to park. Please register or unpark a vehicle first.")
         return
 
-    print("\nYour Registered Vehicles:")
-    for idx, vehicle in enumerate(user.vehicles, start=1):
+    print("\nYour Unparked Registered Vehicles:")
+    for idx, vehicle in enumerate(user_vehicles, start=1):
         print(f"{idx}. {vehicle.get_license_plate()} ({vehicle.get_vehicle_type()})")
 
     while True:
         try:
-            vehicle_choice = input("Select a vehicle to park (enter the number): ").strip()
-            if not vehicle_choice.isdigit() or int(vehicle_choice) < 1 or int(vehicle_choice) > len(user.vehicles):
+            vehicle_choice = input("\nSelect a vehicle to park (enter the number): ").strip()
+            if not vehicle_choice.isdigit() or int(vehicle_choice) < 1 or int(vehicle_choice) > len(user_vehicles):
                 print("Invalid choice. Please select a valid vehicle number.")
                 continue
-            selected_vehicle = user.vehicles[int(vehicle_choice) - 1]
+            selected_vehicle = user_vehicles[int(vehicle_choice) - 1]
             break
         except ValueError:
             print("Invalid input. Please enter a valid number.")
@@ -114,6 +117,7 @@ def park_vehicle(user):
                     continue
 
                 if selected_slot.reserve(user, selected_vehicle):
+                    selected_vehicle.park_vehicle()  # Mark the vehicle as parked
                     print(f"Vehicle {selected_vehicle.get_license_plate()} parked in slot {slot_id}.")
                     break
                 else:
@@ -129,27 +133,30 @@ def depart_vehicle(user):
     print("       Depart a Vehicle")
     print("==============================")
 
-    if not hasattr(user, 'vehicles') or not user.vehicles:
-        print("You have no registered vehicles. Please register a vehicle first.")
+    # Filter vehicles that are registered and parked
+    user_vehicles = [vehicle for vehicle in user.get_vehicles() if vehicle.is_parked()]
+    if not user_vehicles:
+        print("You have no parked vehicles available to depart. Please park a vehicle first.")
         return
 
-    print("\nYour Registered Vehicles:")
-    for idx, vehicle in enumerate(user.vehicles, start=1):
+    print("\nYour Parked Registered Vehicles:")
+    for idx, vehicle in enumerate(user_vehicles, start=1):
         print(f"{idx}. {vehicle.get_license_plate()} ({vehicle.get_vehicle_type()})")
 
     while True:
         try:
-            vehicle_choice = input("Select a vehicle to depart (enter the number): ").strip()
-            if not vehicle_choice.isdigit() or int(vehicle_choice) < 1 or int(vehicle_choice) > len(user.vehicles):
+            vehicle_choice = input("\nSelect a vehicle to depart (enter the number): ").strip()
+            if not vehicle_choice.isdigit() or int(vehicle_choice) < 1 or int(vehicle_choice) > len(user_vehicles):
                 print("Invalid choice. Please select a valid vehicle number.")
                 continue
-            selected_vehicle = user.vehicles[int(vehicle_choice) - 1]
+            selected_vehicle = user_vehicles[int(vehicle_choice) - 1]
             break
         except ValueError:
             print("Invalid input. Please enter a valid number.")
 
     for slot in parking_slots:
         if slot.release(user, selected_vehicle):
+            selected_vehicle.unpark_vehicle()  # Mark the vehicle as unparked
             print(f"Vehicle {selected_vehicle.get_license_plate()} has departed successfully.")
             return
 
@@ -165,25 +172,38 @@ def register_user():
     print("Select User Type:")
     print("1. Student")
     print("2. Staff")
+
     while True:
         choice = input("Enter choice (1 or 2): ").strip()
         if choice in ["1", "2"]:
+            clear_screen()
+            print("\n==============================")
+            print("      User Registration")
+            print("==============================")
             break
+
+        clear_screen()
+        print("\n==============================")
+        print("      User Registration")
+        print("==============================")
+        print("Select User Type:")
+        print("1. Student")
+        print("2. Staff")
         print("Invalid choice. Please select 1 or 2.")
     
-    name = input("Enter your name: ").strip()
+    name = input("Name: ").strip()
     while not name:
         print("Name cannot be empty. Please enter your name.")
         name = input("Enter your name: ").strip()
     
     while True:
-        email = input("Enter email: ").strip()
+        email = input("Email: ").strip()
         if email and is_valid_email(email):
             break
         print("Invalid email format. Please enter a valid email address.")
     
     while True:
-        password = input("Enter password: ").strip()
+        password = input("Password (10 characters long with at least one uppercase letter and one number): ").strip()
         if password and is_valid_password(password):
             break
         print("Password must be at least 10 characters long, contain at least one uppercase letter, and include a number.")
@@ -193,7 +213,7 @@ def register_user():
     
     if choice == "1":
         while True:
-            sr_code = input("Enter student SR Code: ").strip()
+            sr_code = input("SR Code (xx-xxxxx): ").strip()
             if sr_code and is_valid_sr_code(sr_code):
                 break
             print("Invalid SR Code format. Please use the SR Code found in your ID (e.g., 21-12355).")
@@ -215,7 +235,7 @@ def register_user():
         user = Student(name, user_id, email, password, sr_code, course)
     elif choice == "2":
         while True:
-            staff_code = input("Enter staff code: ").strip()
+            staff_code = input("Staff code: ").strip()
             if staff_code and is_valid_staff_code(staff_code):
                 break
             print("Invalid staff code format. Please use the format '21-12355'.")
@@ -224,7 +244,6 @@ def register_user():
         print("1. College of Engineering, Architecture, and Fine Arts")
         print("2. College of Informatics and Computing Sciences")
         print("3. College of Engineering Technology")
-        print("4. Essential Staff")
         while True:
             department_choice = input("Enter choice (1, 2, 3, or 4): ").strip()
             if department_choice == "1":
@@ -236,11 +255,8 @@ def register_user():
             elif department_choice == "3":
                 department = "College of Engineering Technology"
                 break
-            elif department_choice == "4":
-                department = "Essential Staff"
-                break
             else:
-                print("Invalid choice. Please select 1, 2, 3, or 4.")
+                print("Invalid choice. Please select 1, 2, or 3.")
         
         user = Staff(name, user_id, email, password, staff_code, department)
     else:
@@ -251,30 +267,78 @@ def register_user():
 
     return user
 
+def main_system(user):
+    while True:
+        clear_screen()
+        print("\n==============================")
+        print("   Spartan Parking System")
+        print("==============================")
+        print(f"Welcome, {user.name}!")
+
+        user_vehicles = user.get_vehicles()
+        if user_vehicles:
+            print("Your Registered Vehicles:")
+            for idx, vehicle in enumerate(user_vehicles, start=1):
+                print(f"{idx}. {vehicle.get_license_plate()} ({vehicle.get_vehicle_type()})")
+
+        print("\nWhat would you like to do?")
+        print("1. Park a vehicle")
+        print("2. Depart your vehicle")
+        print("3. Register another vehicle")
+        print("4. Exit the system")
+        user_choice = input("Enter your choice: ")
+
+        if user_choice == "1":
+            park_vehicle(user)
+        elif user_choice == "2":
+            depart_vehicle(user)
+        elif user_choice == "3":
+            register_vehicle(user)
+        elif user_choice == "4":
+            print("Logging out... Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
 def main():
     global next_user_id
     admin1 = Admin("Admin Mike", 1, "admin@example.com", "AdminPass123")
     users = {1: admin1}  # Dictionary to store users by their user ID
 
-    # Adding three student users with their vehicles
-    student1 = Student("Alice", next_user_id, "alice@example.com", "Password123", "21-12345", "BS Computer Science")
+    student1 = Student("Alice", next_user_id, "alice@student.com", "Password123", "21-12345", "BS Computer Science")
     next_user_id += 1
     vehicle1 = Vehicle(student1, "MC12345", "Motorcycle")
     vehicle1.register_vehicle()
     users[student1._User__userID] = student1
 
-    student2 = Student("Bob", next_user_id, "bob@example.com", "Password123", "21-54321", "BS Information Technology")
+    student2 = Student("Bob", next_user_id, "bob@student.com", "Password123", "21-54321", "BS Information Technology")
     next_user_id += 1
     vehicle2 = Vehicle(student2, "MC54321", "Motorcycle")
     vehicle2.register_vehicle()
     users[student2._User__userID] = student2
 
-    student3 = Student("Charlie", next_user_id, "charlie@example.com", "Password123", "21-67890", "BS Computer Science")
+    student3 = Student("Charlie", next_user_id, "charlie@student.com", "Password123", "21-67890", "BS Computer Science")
     next_user_id += 1
     vehicle3 = Vehicle(student3, "CAR6789", "Car")
     vehicle3.register_vehicle()
     users[student3._User__userID] = student3
 
+    student4 = Student("John", next_user_id, "john@student.com", "Password123", "21-12378", "BS Computer Science")
+    next_user_id += 1
+    vehicle4 = Vehicle(student4, "CAR012", "Car")
+    vehicle4.register_vehicle()
+    users[student4._User__userID] = student4
+
+    for user_id, user in users.items():
+        print(f"User ID: {user_id}, Name: {user.name}")
+        vehicles = user.get_vehicles()
+        if vehicles:
+            print("  Registered Vehicles:")
+            for vehicle in vehicles:
+                print(f"    - {vehicle.get_license_plate()} ({vehicle.get_vehicle_type()})")
+        else:
+            print("  No registered vehicles.")
+            
     while True:
         clear_screen()
         print("\n==============================")
@@ -300,33 +364,10 @@ def main():
                     break
             
             if found_user:
-                while True:
-                    clear_screen()
-                    print("\n==============================")
-                    print("   Spartan Parking System")
-                    print("==============================")
-                    print(f"Welcome, {found_user.name}!")
-                    print("\nWhat would you like to do?")
-                    print("1. Park a vehicle")
-                    print("2. Register another vehicle")
-                    print("3. Depart a vehicle")
-                    print("4. Exit the system")
-                    user_choice = input("Enter your choice: ")
-
-                    if user_choice == "1":
-                        park_vehicle(found_user)
-                    elif user_choice == "2":
-                        register_vehicle(found_user)
-                    elif user_choice == "3":
-                        depart_vehicle(found_user)
-                    elif user_choice == "4":
-                        print("Logging out... Goodbye!")
-                        break
-                    else:
-                        print("Invalid choice. Please try again.")
+                main_system(found_user)
             else:
-                print("Invalid email or password.")        
-    
+                print("Invalid email or password.")
+        
         elif choice == "2":
             user = register_user()
             if user:

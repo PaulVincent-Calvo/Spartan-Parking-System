@@ -5,10 +5,9 @@ from .vehicle import Vehicle
 class ParkingLot:
     def __init__(self, slotId: int, isForStaff: bool = False):
         self.__slotId = slotId
-        self.__isOccupied = False
         self.__isForStaff = isForStaff
-        self.__reservedBy = None
-        self.__spaceAvailable = 1.0  
+        self.__spaceAvailable = 1.0
+        self.__reservations = {}  # key = User, value = list of Vehicles
 
     def get_slot_id(self):
         return self.__slotId
@@ -24,30 +23,26 @@ class ParkingLot:
             print(f"Vehicle {vehicle.get_license_plate()} is already parked and cannot be parked again.")
             return False
 
-        if self.is_occupied():
-            print(f"Slot {self.__slotId} is fully occupied.")
+        if self.__spaceAvailable < vehicle.get_space_taken():
+            print(f"Not enough space in slot {self.__slotId} for vehicle {vehicle.get_license_plate()}.")
             return False
 
         if self.__isForStaff and not isinstance(user, Staff):
             print(f"Slot {self.__slotId} is reserved for staff only.")
             return False
 
-        if self.__spaceAvailable >= vehicle.get_space_taken():
-            if self.__spaceAvailable < 1.0 and vehicle.get_space_taken() == 1.0:
-                print(f"Cannot park a car in slot {self.__slotId} because it already has a motorcycle.")
-                return False
-
-            self.__spaceAvailable -= vehicle.get_space_taken()
-            self.__reservedBy = user  # Ensure the user is correctly set
-            print(f"Slot {self.__slotId} reserved by {user.name} for vehicle {vehicle.get_license_plate()}.")
-            return True
-        else:
-            print(f"Not enough space in slot {self.__slotId} for vehicle {vehicle.get_license_plate()}.")
+        if any(v.get_vehicle_type() == "Car" for vehicles in self.__reservations.values() for v in vehicles):
+            print(f"Slot {self.__slotId} already has a car parked and cannot accommodate another vehicle.")
             return False
 
+        self.__spaceAvailable -= vehicle.get_space_taken()
+        self.__reservations.setdefault(user, []).append(vehicle)
+        print(f"Slot {self.__slotId} reserved by {user.name} for vehicle {vehicle.get_license_plate()}.")
+        return True
+
     def release(self, user: User, vehicle: Vehicle):
-        if self.__reservedBy != user:
-            print(f"Error: Slot {self.__slotId} is not reserved by {user.name}.")
+        if user not in self.__reservations or vehicle not in self.__reservations[user]:
+            print(f"Error: Slot {self.__slotId} is not reserved for {user.name}'s {vehicle.get_license_plate()}.")
             return False
 
         if self.__spaceAvailable + vehicle.get_space_taken() > 1.0:
@@ -55,7 +50,9 @@ class ParkingLot:
             return False
 
         self.__spaceAvailable += vehicle.get_space_taken()
-        if self.__spaceAvailable == 1.0:  # Reset reservedBy if the slot is fully empty
-            self.__reservedBy = None
+        self.__reservations[user].remove(vehicle)
+        if not self.__reservations[user]:
+            del self.__reservations[user]
+
         print(f"Vehicle {vehicle.get_license_plate()} has departed from slot {self.__slotId}.")
         return True

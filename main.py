@@ -80,7 +80,7 @@ def park_vehicle(user):
     for slot in parking_slots:
         if not slot.is_occupied():
             if slot.is_for_staff() and not isinstance(user, Staff):
-                continue 
+                continue
             print(f"Slot {slot.get_slot_id()} {'(Staff Only)' if slot.is_for_staff() else ''} - Space Available: {slot._ParkingLot__spaceAvailable}")
 
     user_vehicles = [vehicle for vehicle in user.get_vehicles() if not vehicle.is_parked()]
@@ -267,6 +267,214 @@ def register_user():
 
     return user
 
+def admin_dashboard(admin):
+    while True:
+        clear_screen()
+        print("\n==============================")
+        print("        Admin Dashboard")
+        print("==============================")
+        print(f"Welcome, {admin.name}!")
+        
+        # Display the status of every parking slot
+        print("\nParking Slot Status:")
+        for slot in parking_slots:
+            if slot.is_occupied():
+                vehicle = slot.get_reserved_vehicle()
+                print(f"Slot {slot.get_slot_id()}: Occupied by {vehicle.get_license_plate()} ({vehicle.get_vehicle_type()})")
+            else:
+                print(f"Slot {slot.get_slot_id()}: Unoccupied")
+        
+        # Admin options
+        print("\nWhat would you like to do?")
+        print("1. Manage Parking Slots")
+        print("2. Reset User Password")
+        print("3. Exit to Main Menu")
+        choice = input("Enter your choice: ").strip()
+        
+        if choice == "1":
+            manage_parking_slots(admin)
+        elif choice == "2":
+            reset_user_password(admin)
+        elif choice == "3":
+            print("Exiting Admin Dashboard... Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+def manage_parking_slots(admin):
+    while True:
+        clear_screen()
+        print("\n==============================")
+        print("     Manage Parking Slots")
+        print("==============================")
+        
+        # Display parking slots
+        print("Parking Slot Status:")
+        for slot in parking_slots:
+            if slot.is_occupied():
+                vehicle = slot.get_reserved_vehicle()
+                print(f"Slot {slot.get_slot_id()}: Occupied by {vehicle.get_license_plate()} ({vehicle.get_vehicle_type()})")
+            else:
+                print(f"Slot {slot.get_slot_id()}: Unoccupied")
+        
+        print("\nWhat would you like to do?")
+        print("1. Manually Reserve a Parking Slot")
+        print("2. Unpark a Vehicle")
+        print("3. Return to Admin Dashboard")
+        choice = input("Enter your choice: ").strip()
+        
+        if choice == "1":
+            manually_reserve_slot(admin)
+        elif choice == "2":
+            unpark_vehicle(admin)
+        elif choice == "3":
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+def manually_reserve_slot(admin):
+    clear_screen()
+    print("\n==============================")
+    print("  Manually Reserve a Slot")
+    print("==============================")
+    
+    # Display unoccupied slots
+    unoccupied_slots = [slot for slot in parking_slots if not slot.is_occupied()]
+    if not unoccupied_slots:
+        print("No unoccupied slots available.")
+        input("Press Enter to return to the previous menu...")
+        return
+    
+    print("Unoccupied Slots:")
+    for slot in unoccupied_slots:
+        print(f"Slot {slot.get_slot_id()}")
+    
+    # Select a slot
+    while True:
+        try:
+            slot_id = int(input("Enter the slot ID to reserve: ").strip())
+            selected_slot = next((slot for slot in unoccupied_slots if slot.get_slot_id() == slot_id), None)
+            if selected_slot:
+                break
+            else:
+                print("Invalid slot ID. Please try again.")
+        except ValueError:
+            print("Invalid input. Please enter a numeric slot ID.")
+    
+    # Select a user and vehicle
+    print("\nRegistered Users:")
+    for user_id, user in users.items():
+        print(f"User ID: {user_id}, Name: {user.name}")
+    
+    while True:
+        try:
+            user_id = int(input("Enter the User ID to reserve the slot for: ").strip())
+            selected_user = users.get(user_id)
+            if selected_user:
+                break
+            else:
+                print("Invalid User ID. Please try again.")
+        except ValueError:
+            print("Invalid input. Please enter a numeric User ID.")
+    
+    user_vehicles = selected_user.get_vehicles()
+    if not user_vehicles:
+        print(f"User {selected_user.name} has no registered vehicles.")
+        input("Press Enter to return to the previous menu...")
+        return
+    
+    print("\nUser's Registered Vehicles:")
+    for idx, vehicle in enumerate(user_vehicles, start=1):
+        print(f"{idx}. {vehicle.get_license_plate()} ({vehicle.get_vehicle_type()})")
+    
+    while True:
+        try:
+            vehicle_choice = int(input("Select a vehicle to reserve the slot for (enter the number): ").strip())
+            if 1 <= vehicle_choice <= len(user_vehicles):
+                selected_vehicle = user_vehicles[vehicle_choice - 1]
+                break
+            else:
+                print("Invalid choice. Please select a valid vehicle number.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+    
+    if selected_slot.reserve(selected_user, selected_vehicle):
+        print(f"Slot {selected_slot.get_slot_id()} successfully reserved for {selected_vehicle.get_license_plate()} ({selected_vehicle.get_vehicle_type()}).")
+    else:
+        print(f"Failed to reserve slot {selected_slot.get_slot_id()} for {selected_vehicle.get_license_plate()}.")
+    
+    input("Press Enter to return to the previous menu...")
+
+def unpark_vehicle(admin):
+    clear_screen()
+    print("\n==============================")
+    print("        Unpark a Vehicle")
+    print("==============================")
+    
+    # Display occupied slots
+    occupied_slots = [slot for slot in parking_slots if slot.is_occupied()]
+    if not occupied_slots:
+        print("No vehicles are currently parked.")
+        input("Press Enter to return to the previous menu...")
+        return
+    
+    print("Occupied Slots:")
+    for slot in occupied_slots:
+        vehicle = slot.get_reserved_vehicle()
+        print(f"Slot {slot.get_slot_id()}: {vehicle.get_license_plate()} ({vehicle.get_vehicle_type()})")
+    
+    # Select a slot to unpark
+    while True:
+        try:
+            slot_id = int(input("Enter the slot ID to unpark the vehicle from: ").strip())
+            selected_slot = next((slot for slot in occupied_slots if slot.get_slot_id() == slot_id), None)
+            if selected_slot:
+                break
+            else:
+                print("Invalid slot ID. Please try again.")
+        except ValueError:
+            print("Invalid input. Please enter a numeric slot ID.")
+    
+    if selected_slot.release(selected_slot.get_reserved_user(), selected_slot.get_reserved_vehicle()):
+        selected_slot.get_reserved_vehicle().unpark_vehicle()
+        print(f"Vehicle successfully unparked from slot {selected_slot.get_slot_id()}.")
+    else:
+        print(f"Failed to unpark vehicle from slot {selected_slot.get_slot_id()}.")
+    
+    input("Press Enter to return to the previous menu...")
+
+def reset_user_password(admin):
+    clear_screen()
+    print("\n==============================")
+    print("      Reset User Password")
+    print("==============================")
+    
+    print("Registered Users:")
+    for user_id, user in users.items():
+        print(f"User ID: {user_id}, Name: {user.name}")
+    
+    while True:
+        try:
+            user_id = int(input("Enter the User ID to reset the password for: ").strip())
+            selected_user = users.get(user_id)
+            if selected_user:
+                break
+            else:
+                print("Invalid User ID. Please try again.")
+        except ValueError:
+            print("Invalid input. Please enter a numeric User ID.")
+    
+    while True:
+        new_password = input("Enter the new password: ").strip()
+        if new_password and is_valid_password(new_password):
+            selected_user._User__password = new_password
+            print(f"Password for User ID {user_id} has been successfully reset.")
+            break
+        else:
+            print("Invalid password. Please try again.")
+    
+    input("Press Enter to return to the previous menu...")
+
 def main_system(user):
     while True:
         clear_screen()
@@ -364,7 +572,10 @@ def main():
                     break
             
             if found_user:
-                main_system(found_user)
+                if isinstance(found_user, Admin):
+                    admin_dashboard(found_user)
+                else:
+                    main_system(found_user)
             else:
                 print("Invalid email or password.")
         

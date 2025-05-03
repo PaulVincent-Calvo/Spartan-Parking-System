@@ -9,8 +9,9 @@ from classes.vehicle import Vehicle
 from classes.parkingLot import ParkingLot
 
 parking_slots = [
-    ParkingLot(slotId=1, isForStaff=False), 
-    ParkingLot(slotId=2, isForStaff=False),  
+    ParkingLot(slotId = 1, isForStaff = False), 
+    ParkingLot(slotId = 2, isForStaff = False), 
+    ParkingLot(slotId = 3, isForStaff = True)
 ]
 
 # accounts
@@ -22,7 +23,7 @@ student2 = Student("Bob", 2, "bob@student.com", "Password123", "21-54321", "BS I
 car2 = Vehicle(student2, "CAR54321", "Car")
 car2.register_vehicle()
 
-student3 = Student("Charlie", 3, "charlie@student.com", "Password123", "21-67890", "BS Engineering")
+student3 = Student("Charlie", 3, "charlie@student.com", "Password123", "21-67890", "BS Architecture")
 car3 = Vehicle(student3, "CAR6789", "Car")
 car3.register_vehicle()
 
@@ -32,6 +33,7 @@ car3.park_vehicle()
 
 # test cases
 test_cases = {
+    (student1, car1, parking_slots[2]): False, # student 1 parks their car in a staff parking slot - fail
     (student1, car1, parking_slots[0]): True, # student 1 parks their car in an empty parking slot - pass
     (student2, car2, parking_slots[0]): False,  # student 2 parks their car in the same slot as Student 1 - fail
     (student3, car3, parking_slots[1]): False,  # student 3 tries to park their car that is already parked - fail

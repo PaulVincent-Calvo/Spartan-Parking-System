@@ -9,8 +9,9 @@ from classes.vehicle import Vehicle
 from classes.parkingLot import ParkingLot
 
 parking_slots = [
-    ParkingLot(slotId=1, isForStaff=False), 
-    ParkingLot(slotId=2, isForStaff=False),  
+    ParkingLot(slotId = 1, isForStaff = False), 
+    ParkingLot(slotId = 2, isForStaff = True),
+    ParkingLot(slotId = 3, isForStaff = False),
 ]
 
 # accounts
@@ -26,19 +27,20 @@ student3 = Student("David", 3, "david@student.com", "Password123", "21-98765", "
 car1 = Vehicle(student3, "CAR9876", "Car")
 car1.register_vehicle()
 
-student4 = Student("Charlie", 4, "charlie@student.com", "Password123", "21-67890", "BS Engineering")
+student4 = Student("Charlie", 4, "charlie@student.com", "Password123", "21-67890", "BS Architecture")
 motorcycle3 = Vehicle(student4, "MC67890", "Motorcycle")
 motorcycle3.register_vehicle()
 
-# precondition for test case 3: a single motorcycle is parked in a parking slot 
-parking_slots[1].reserve(student4, motorcycle3)
+# precondition for test case 4: a single motorcycle is parked in a parking slot 
+parking_slots[2].reserve(student4, motorcycle3)
 motorcycle3.park_vehicle()
 
-# test casess
+# test cases
 test_cases = {
-    (student1, motorcycle1, parking_slots[0]): True,  # student 1 parks their motorcycle in an empty parking slot - pass
-    (student2, motorcycle2, parking_slots[0]): True,  # student 2 parks their motorcycle in the same slot as Student 1 - pass
-    (student3, car1, parking_slots[1]): False,        # student 4 tries to park their car in the slot occupied by Student 3's motorcycle - fail
+    (student1, motorcycle1, parking_slots[1]): False,  # Student 1 parks their motorcycle in an empty staff parking slot - fail
+    (student1, motorcycle1, parking_slots[0]): True,  # Student 1 parks their motorcycle in an empty parking slot - pass
+    (student2, motorcycle2, parking_slots[0]): True,  # Student 2 parks their motorcycle in the same slot as Student 1 - pass
+    (student3, car1, parking_slots[2]): False,        # student 3 tries to park their car in the slot occupied by Student 4's motorcycle - fail
 }
 
 def test_motorcycle_parking():

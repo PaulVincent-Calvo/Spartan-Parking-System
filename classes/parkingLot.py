@@ -41,16 +41,17 @@ class ParkingLot:
         return True
 
     def release(self, user: User, vehicle: Vehicle):
-        if user not in self.__reservations or vehicle not in self.__reservations[user]:
-            print(f"Error: Slot {self.__slotId} is not reserved for {user.name}'s {vehicle.get_license_plate()}.")
-            return False
-
         if self.__spaceAvailable + vehicle.get_space_taken() > 1.0:
-            print(f"Error: Vehicle {vehicle.get_license_plate()} is not parked in slot {self.__slotId}.")
+            print(f"Vehicle {vehicle.get_license_plate()} is not parked in slot {self.__slotId}.")
             return False
-
+        
+        if user not in self.__reservations or vehicle not in self.__reservations[user]:
+            print(f" Slot {self.__slotId} is not reserved for {user.name}'s {vehicle.get_license_plate()}.")
+            return False
+        
         self.__spaceAvailable += vehicle.get_space_taken()
         self.__reservations[user].remove(vehicle)
+        
         if not self.__reservations[user]:
             del self.__reservations[user]
 

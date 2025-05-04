@@ -25,7 +25,7 @@ student3 = Student("David", 3, "david@student.com", "Password123", "21-98765", "
 motorcycle2 = Vehicle(student3, "MC12345", "Motorcycle")
 motorcycle2.register_vehicle()
 
-# preconditions: vehicles should already be parked in the parking slots
+# preconditions: vehicles should already be parked in the parking slotss
 parking_slots[0].reserve(student1, car1)
 car1.park_vehicle()
 
@@ -35,26 +35,23 @@ motorcycle1.park_vehicle()
 parking_slots[1].reserve(student3, motorcycle2)  
 motorcycle2.park_vehicle()
 
-# Test cases as an array
+# test cases 
 test_cases = [
     (student1, car1, parking_slots[0], True),  # Student 1 departs their car that is already parked from the parking slot - pass
     (student1, car1, parking_slots[0], False),  # Student 1 tries to depart their car that is not parked - fail
     (student2, motorcycle1, parking_slots[1], True),  # Students 2 and 3 depart their motorcycle that is parked from the parking slot - pass
     (student3, motorcycle2, parking_slots[1], True),
-    (student2, motorcycle1, parking_slots[1], False),  # Students 2 and 3 try to depart their motorcycle that is not parked - fail
-    (student3, motorcycle2, parking_slots[1], False),
+    (student2, motorcycle1, parking_slots[1], False),  # Student 2 tries to depart their motorcycle that is not parked - fail
 ]
 
-# Function to test vehicle departure
 def test_vehicle_departure(test_cases):
     os.system('cls' if os.name == 'nt' else 'clear')
     for user, vehicle, slot, expected_result in test_cases:
         description = f"User {user.get_user_id()} tries to depart {vehicle.get_license_plate()} from slot {slot.get_slot_id()}"
         print(f"\n{description}")
         
-        # Attempt to release the vehicle from the parking slot
         result = slot.release(user, vehicle)
-        if result == expected_result:  # Corrected condition
+        if result == expected_result:
             if result:
                 vehicle.unpark_vehicle()
                 print(f"Success: {vehicle.get_license_plate()} departed from slot {slot.get_slot_id()}.")

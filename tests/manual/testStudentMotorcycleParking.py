@@ -37,7 +37,7 @@ motorcycle3.park_vehicle()
 
 # test cases
 test_cases = {
-    (student1, motorcycle1, parking_slots[1]): False,  # Student 1 parks their motorcycle in an empty staff parking slot - fail
+    (student1, motorcycle1, parking_slots[1]): False, # Student 1 parks their motorcycle in an empty staff parking slot - fail
     (student1, motorcycle1, parking_slots[0]): True,  # Student 1 parks their motorcycle in an empty parking slot - pass
     (student2, motorcycle2, parking_slots[0]): True,  # Student 2 parks their motorcycle in the same slot as Student 1 - pass
     (student3, car1, parking_slots[2]): False,        # student 3 tries to park their car in the slot occupied by Student 4's motorcycle - fail

@@ -35,7 +35,7 @@ motorcycle3.register_vehicle()
 parking_slots[2].reserve(student4, motorcycle3)
 motorcycle3.park_vehicle()
 
-# test cases
+# test cases 005 - 008
 test_cases = {
     (student1, motorcycle1, parking_slots[1]): False, # Student 1 parks their motorcycle in an empty staff parking slot - fail
     (student1, motorcycle1, parking_slots[0]): True,  # Student 1 parks their motorcycle in an empty parking slot - pass

@@ -1,7 +1,11 @@
+import unittest
+import sys
 import os
 import io
 from unittest.mock import patch
 
+# Add the parent directory to path so we can import the main module
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # Import the functions to test
 from main import (

@@ -31,7 +31,7 @@ car3.register_vehicle()
 parking_slots[1].reserve(student3, car3)
 car3.park_vehicle()
 
-# test cases
+# test cases 001 - 004
 test_cases = {
     (student1, car1, parking_slots[2]): False, # student 1 parks their car in a staff parking slot - fail
     (student1, car1, parking_slots[0]): True, # student 1 parks their car in an empty parking slot - pass

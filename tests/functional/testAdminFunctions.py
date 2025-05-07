@@ -38,7 +38,7 @@ student5 = Student("Eve", 6, "eve@student.com", "Password123", "21-54322", "BS C
 motorcycle3 = Vehicle(student5, "MC54322", "Motorcycle")
 motorcycle3.register_vehicle()
 
-# test cases
+# test cases 017 - 023
 def test_reset_password():
     print("\nFunctional Test: Reset Password")
     print(f"Before reset: {student1._User__password}")
@@ -101,7 +101,8 @@ def test_manual_parking():
         print(f"Fail: Could not reserve slot {parking_slots[0].get_slot_id()} for vehicle {car1.get_license_plate()}.")
 
     print("\nNegative Case: Park in Staff-Only Slot")
-    if parking_slots[1].reserve(student1, car1):
+
+    if parking_slots[1].reserve(student2, motorcycle1):
         print("Fail: Non-staff user should not be able to reserve a staff-only slot.")
     else:
         print("Success: Reservation rejected for non-staff user in staff-only slot.")
@@ -121,7 +122,6 @@ def test_manual_unparking():
     else:
         print("Success: Unparking rejected for vehicle not in the slot.")
 
-# Run tests
 def run_tests():
     os.system('cls' if os.name == 'nt' else 'clear')
     print("Running Admin Functional Tests...")

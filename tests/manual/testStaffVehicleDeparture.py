@@ -35,7 +35,7 @@ motorcycle1.park_vehicle()
 parking_slots[1].reserve(staff3, motorcycle2)
 motorcycle2.park_vehicle()
 
-# test cases
+# test cases 013 - 016
 test_cases = [
     (staff1, car1, parking_slots[0], True),  # staff 1 departs their car that is already parked - pass
     (staff1, car1, parking_slots[0], False),  # staff 1 tries to depart their car that is not parked - fail
